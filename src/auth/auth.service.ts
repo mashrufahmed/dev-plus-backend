@@ -76,20 +76,28 @@ export class AuthService {
       expiresIn: expiresIn,
     });
     const isProd = process.env.NODE_ENV === 'production';
-
-    res.cookie('d_t-secure', token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: isProd,
-      sameSite: 'lax',
+      sameSite: isProd ? ('none' as const) : ('lax' as const),
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    };
+
+    res.cookie('d_t-secure', token, cookieOptions);
 
     return res.redirect(`${redirectUrl}/auth/callback`);
   }
 
   async logout(res: Response) {
-    res.clearCookie('d_t-secure');
+    const isProd = process.env.NODE_ENV === 'production';
+
+    res.clearCookie('d_t-secure', {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      path: '/',
+    });
     return {
       message: 'Logged out successfully',
       success: true,
