@@ -20,7 +20,7 @@ export class AuthController {
   @UseGuards(PassportAuthGuard('github'))
   githubLogin() {}
 
-  @Get('callback/github')
+  @Get('github/callback')
   @UseGuards(PassportAuthGuard('github'))
   async githubCallback(@Req() req: Request, @Res() res: Response) {
     return this.authService.loginUser(req, res);

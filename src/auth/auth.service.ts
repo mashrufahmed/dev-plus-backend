@@ -98,14 +98,6 @@ export class AuthService {
   }
 
   async logout(res: Response) {
-    const isProd = process.env.NODE_ENV === 'production';
-
-    res.clearCookie('d_t-secure', {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
-      path: '/',
-    });
     return {
       message: 'Logged out successfully',
       success: true,
