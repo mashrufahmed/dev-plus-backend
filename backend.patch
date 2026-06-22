@@ -1,0 +1,13 @@
+diff --git a/src/auth/auth.controller.ts b/src/auth/auth.controller.ts
+index 2fb3df0..50ecb64 100644
+--- a/src/auth/auth.controller.ts
++++ b/src/auth/auth.controller.ts
+@@ -27,7 +27,7 @@ export class AuthController {
+   }
+ 
+   @Post('exchange-token')
+-  async exchangeToken(@Body() token: string) {
++  async exchangeToken(@Body('token') token: string) {
+     return this.authService.exchangeToken(token);
+   }
+ 

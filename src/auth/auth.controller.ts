@@ -27,7 +27,7 @@ export class AuthController {
   }
 
   @Post('exchange-token')
-  async exchangeToken(@Body() token: string) {
+  async exchangeToken(@Body('token') token: string) {
     return this.authService.exchangeToken(token);
   }
 
