@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { StringValue } from 'ms';
+import { RedisService } from 'src/common/redis/redis.service';
 import { ProfileSetting } from 'src/common/schemas/profile-setting.schema';
 import { User, UserDocument } from 'src/common/schemas/user.schema';
 
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly profileSettingModel: Model<ProfileSetting>,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
   ) {}
 
   async validateSocialUser(data: {
@@ -27,7 +29,10 @@ export class AuthService {
     avatar?: string;
   }) {
     let existingUser = await this.userModel.findOne({
-      $or: [{ github_id: data.github_id }, { github_username: data.github_username }],
+      $or: [
+        { github_id: data.github_id },
+        { github_username: data.github_username },
+      ],
     });
 
     if (existingUser) {
@@ -75,18 +80,21 @@ export class AuthService {
       secret: secret,
       expiresIn: expiresIn,
     });
-    const isProd = process.env.NODE_ENV === 'production';
-    const cookieOptions = {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? ('none' as const) : ('lax' as const),
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    };
+    const randomString = Math.random().toString(36).substring(2, 15); // Generate a random string EX: 1a2b3c4d5e6f
+    await this.redisService.set(randomString, token, 60 * 60);
+    return res.redirect(`${redirectUrl}/auth/callback?code=${randomString}`);
+  }
 
-    res.cookie('d_t-secure', token, cookieOptions);
+  async exchangeToken(token: string) {
+    const tokenValue = await this.redisService.get(token);
 
-    return res.redirect(`${redirectUrl}/auth/callback`);
+    if (!tokenValue) {
+      throw new BadRequestException('Invalid token');
+    }
+
+    await this.redisService.del(token);
+
+    return { token: tokenValue };
   }
 
   async logout(res: Response) {

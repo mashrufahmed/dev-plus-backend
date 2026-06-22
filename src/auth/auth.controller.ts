@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
 import type { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/common/jwt/jwt.guard';
@@ -18,10 +26,14 @@ export class AuthController {
     return this.authService.loginUser(req, res);
   }
 
+  @Post('exchange-token')
+  async exchangeToken(@Body() token: string) {
+    return this.authService.exchangeToken(token);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     return this.authService.logout(res);
   }
 }
-
