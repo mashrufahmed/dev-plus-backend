@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -12,6 +13,7 @@ async function bootstrap() {
   });
   app.use(cookieParser());
 
+  app.use(morgan('dev'));
   const config = new DocumentBuilder()
     .setTitle('Dev Plus Api')
     .setVersion('1.0')
@@ -23,3 +25,5 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 }
 bootstrap();
+
+// main ==> module => controller => service

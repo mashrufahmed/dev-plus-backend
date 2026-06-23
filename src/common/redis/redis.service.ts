@@ -12,11 +12,11 @@ export class RedisService implements OnModuleDestroy {
   }
 
   async set(key: string, value: string, TTL: number) {
-    return this.client.set(key, value, 'EX', TTL);
+    return await this.client.set(key, value, 'EX', TTL);
   }
 
   async get(key: string) {
-    return this.client.get(key);
+    return await this.client.get(key);
   }
 
   async del(key: string) {

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Patch,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -29,7 +30,7 @@ export class UserController {
     return this.userService.getSettings(String(user._id));
   }
 
-  @Patch('settings')
+  @Put('settings')
   updateSettings(@Req() req: Request, @Body() body: Record<string, boolean>) {
     const user = req.user as UserDocument;
     return this.userService.updateSettings(String(user._id), body);
